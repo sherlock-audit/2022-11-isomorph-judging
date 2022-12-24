@@ -120,7 +120,7 @@ Fix typo in Vault_Velo https://github.com/kree-dotcom/isomorph/commit/67b2f981a7
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/85 
 
 ## Found by 
-HollaDieWaldfee, libratus, KingNFT, Jeiwan, CodingNameKiki, clems4ever, cccz, caventa
+libratus, cccz, clems4ever, HollaDieWaldfee, CodingNameKiki, Jeiwan, caventa, KingNFT
 
 ## Summary
 The ````openLoan()```` function  wrongly use ````isoUSDLoaned```` to calculate ````totalUSDborrowed````. Attacker can exploit it to bypass security check and loan isoUSD with no enough collateral.
@@ -278,7 +278,7 @@ Note there are two fixes in this commit relating to the priceLiquidity function.
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/69 
 
 ## Found by 
-rvierdiiev, 0x52
+0x52, rvierdiiev
 
 ## Summary
 
@@ -361,7 +361,7 @@ Will update when the closeLoan check has been improved.
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/57 
 
 ## Found by 
-HonorLt, 0x52
+0x52, HonorLt
 
 ## Summary
 
@@ -418,7 +418,7 @@ This means `increaseCollateralAmount()`, `closeLoan()` and `callLiquidation()` c
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/51 
 
 ## Found by 
-HollaDieWaldfee, 0x52
+0x52, HollaDieWaldfee
 
 ## Summary
 
@@ -488,7 +488,7 @@ We added the checks on lines 82 and 123 that validate any depositReceipt being w
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/47 
 
 ## Found by 
-HonorLt, HollaDieWaldfee, bin2chen, ak1, neumo, Jeiwan, rotcivegaf, CodingNameKiki, clems4ever, 0x52
+neumo, HonorLt, clems4ever, 0x52, rotcivegaf, bin2chen, HollaDieWaldfee, ak1, CodingNameKiki, Jeiwan
 
 ## Summary
 
@@ -567,7 +567,7 @@ Here we have added a check on line 81 and 122 as suggested. There is also minor 
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/46 
 
 ## Found by 
-clems4ever, 0x52
+0x52, clems4ever
 
 ## Summary
 
@@ -825,7 +825,7 @@ Leaving this issue unfixed is unlikely to cause large problems. LiquidityTokens 
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/234 
 
 ## Found by 
-rvierdiiev, hansfriese
+hansfriese, rvierdiiev
 
 
 
@@ -900,7 +900,7 @@ If a collateral is paused and unpaused often then interest owed can be lost beca
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/231 
 
 ## Found by 
-jonatascm, wagmi, hansfriese, rvierdiiev, 0x4non, neumo, GimelSec
+neumo, 0x4non, GimelSec, rvierdiiev, hansfriese, wagmi, jonatascm
 
 
 
@@ -954,7 +954,7 @@ https://github.com/kree-dotcom/isomorph/blob/4fc80e6178204691a365f656908c278d5fa
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/229 
 
 ## Found by 
-rvierdiiev, bin2chen, ak1
+rvierdiiev, ak1, bin2chen
 
 ## Summary
 
@@ -1016,7 +1016,7 @@ Fixed https://github.com/kree-dotcom/isomorph/commit/6b403bad09388fca0153b843a2e
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/224 
 
 ## Found by 
-Jeiwan, yixxas, Deivitto
+Deivitto, yixxas, Jeiwan
 
 ## Summary
 Dangerous assumption on the peg of USDC can lead to manipulations
@@ -1072,7 +1072,7 @@ As for sUSD, we will explore how changes might impact the system. The system is 
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/200 
 
 ## Found by 
-caventa, 8olidity, \_\_141345\_\_, yixxas
+HonorLt, yixxas, \_\_141345\_\_, 8olidity, caventa
 
 ## Summary
 
@@ -1155,7 +1155,7 @@ Fixed https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/5c656e791e70ecdf
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/191 
 
 ## Found by 
-yixxas, ctf\_sec, rvierdiiev, 0xjayne, Jeiwan, CodingNameKiki, GimelSec
+yixxas, GimelSec, rvierdiiev, ctf\_sec, CodingNameKiki, Jeiwan, 0xjayne
 
 ## Summary
 
@@ -1336,7 +1336,7 @@ Sorry there were some errors I've corrected in the above commit https://github.c
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/158 
 
 ## Found by 
-HollaDieWaldfee, bin2chen, libratus, hansfriese, wagmi, rvierdiiev, KingNFT, Jeiwan, 0x52, Atarpara
+libratus, 0x52, Atarpara, bin2chen, rvierdiiev, HollaDieWaldfee, wagmi, Jeiwan, KingNFT, hansfriese
 
 ## Summary
 
@@ -1616,7 +1616,7 @@ SPonsor confirmed, will fix
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/70 
 
 ## Found by 
-clems4ever, 0x52
+0x52, clems4ever
 
 ## Summary
 
