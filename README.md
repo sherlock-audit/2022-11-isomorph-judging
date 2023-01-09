@@ -91,11 +91,10 @@ I recommend adding a separate function that allows users to pay off their loan w
 
 **kree-dotcom**
 
-Sponsor confirmed. This is a difficult fix, it is highly likely that adding an extra function to Vault_Lyra and Vault_Velo will lead to "code too big" errors preventing them compiling, we will have to consult with 0x52/Sherlock to see what else can be done to fix this.
+Applied fix to `Vault_Synth` here https://github.com/kree-dotcom/isomorph/commit/6b0879e59a3e5156fde88f4c90d0029aa31b3786
+`Vault_Velo` and `Vault_Lyra` fixed here https://github.com/kree-dotcom/isomorph/commit/7b113eaf19c126db796190f271d85bc5c2cba865
 
-**kree-dotcom**
-
-Proposing to change the `closeLoan()` check to 
+ change the `closeLoan()` check to 
 
 `if((outstandingisoUSD > 0) && (_collateralToUser > 0)){ //leftover debt must meet minOpeningMargin if requesting collateral back`
 `uint256 collateralLeft = ...`
@@ -104,14 +103,13 @@ Proposing to change the `closeLoan()` check to
 
 This way checks are only triggered if the user is repaying some of their loan and requesting capital back. This allows us to prevent people from opening loans with a lower than minOpeningMargin but allows them to reduce their loan without needing to match the minOpeningMargin.
 
-**kree-dotcom**
-
-Applied fix to `Vault_Synth` here https://github.com/kree-dotcom/isomorph/commit/6b0879e59a3e5156fde88f4c90d0029aa31b3786
-`Vault_Velo` and `Vault_Lyra` fixed here https://github.com/kree-dotcom/isomorph/commit/7b113eaf19c126db796190f271d85bc5c2cba865
-
 Note `Vault_Velo` has to use a slightly different method because we are handling NFTs instead of ERC20s. I have checked the `_calculateProposedReturnedCapital()` function we are relying on will also work fine if given an array of non-owned NFTs (i.e. the user is not receiving any collateral back just reducing their loan) by returning 0.
 
 Fix typo in Vault_Velo https://github.com/kree-dotcom/isomorph/commit/67b2f981a7cbe3fb0b6a057dab82d69d6d61fdc9
+
+**0x00052**
+
+Fixes look good. Only values the collateral if there is debt and the user is removing collateral
 
 
 
@@ -120,7 +118,7 @@ Fix typo in Vault_Velo https://github.com/kree-dotcom/isomorph/commit/67b2f981a7
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/85 
 
 ## Found by 
-clems4ever, cccz, CodingNameKiki, HollaDieWaldfee, Jeiwan, caventa, libratus, KingNFT
+Jeiwan, cccz, CodingNameKiki, clems4ever, KingNFT, caventa, libratus, HollaDieWaldfee
 
 ## Summary
 The ````openLoan()```` function  wrongly use ````isoUSDLoaned```` to calculate ````totalUSDborrowed````. Attacker can exploit it to bypass security check and loan isoUSD with no enough collateral.
@@ -166,11 +164,11 @@ See Vulnerability Detail
 
 **kree-dotcom**
 
-Sponsor confirmed, duplicate of issue #68 
-
-**kree-dotcom**
-
 Fixed https://github.com/kree-dotcom/isomorph/commit/3d77c9f706a52eb6312abc711a007ea8431f749b
+
+**0x00052**
+
+Fixes look good. Vault_Synths now correctly uses isoUSDLoanAndInterest for calculating borrowed USD
 
 
 
@@ -209,7 +207,13 @@ It's unclear how long OP rewards will continue but it seems like other protocols
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix
+Fixed, https://github.com/kree-dotcom/isomorph/commit/f1b5bbcb10909041f2da6b0074518142790919c6 .
+
+Added a function claimLyraRewards which allows the Vault to claim any token rewards it is eligible for. These are then sent to the admin and will be allocated to end users using a similar system that Lyra currently has of off-chain balance snapshots and a `MultiDistributor.sol` contract by which users claim their rewards.
+
+**0x00052**
+
+Fixes look good. Adds an admin only function that allow OP rewards to be claimed and later distributed
 
 
 
@@ -263,13 +267,13 @@ Instead of quoting from the router, query the correct pool directly:
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix.
-
-**kree-dotcom**
-
 Fixed https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/58b8f3e14b416630971b7b17b500bbe22d2016aa
 
-Note there are two fixes in this commit relating to the priceLiquidity function. The other fix is for issue #145 , the code for these changes doesn't overlap so should be clear, please ask me if it is not.
+Note there are two fixes in this commit relating to the priceLiquidity function. The other fix is for issue #145 , the code for these changes doesn't overlap so should be clear.
+
+**0x00052**
+
+Fixes look good. The pair is now requested directly from the router
 
 
 
@@ -345,14 +349,13 @@ I recommend removing liquidation threshold check from increaseCollateralAmount:
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix. 
 The liquidation threshold for `increaseCollateralAmount()` has been removed as part of the fix for issue #229
 
-Will update when the closeLoan check has been improved.
+The `closeLoan()` aspect has been fixed here https://github.com/kree-dotcom/isomorph/commit/c14410687e0f2095dd9103b00157b8784430875e
 
-**kree-dotcom**
+**0x00052**
 
-`closeLoan()` fixed here https://github.com/kree-dotcom/isomorph/commit/c14410687e0f2095dd9103b00157b8784430875e
+Fixes look good. No collateral check if loan is fully repaid.
 
 
 
@@ -361,7 +364,7 @@ Will update when the closeLoan check has been improved.
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/57 
 
 ## Found by 
-0x52, HonorLt
+HonorLt, 0x52
 
 ## Summary
 
@@ -402,14 +405,14 @@ Allow liquidations and loan closure when collateral is paused
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix. We will make it possible to close a loan or liquidate a loan when the collateral is paused.
-
-**kree-dotcom**
-
 Fixed. https://github.com/kree-dotcom/isomorph/commit/9fef84211c150a6d184b2c492f77fa13b8adc61b 
 
 By decoupling the switching of the CollateralValid mapping in the `CollateralBook.sol` from CollateralPaused we can now introduce an additional check in `OpenLoan()` of `require(!collateralBook.collateralPaused(_collateralAddress), "Paused collateral!");` 
 This means `increaseCollateralAmount()`, `closeLoan()` and `callLiquidation()` can all occur for paused collaterals.
+
+**0x00052**
+
+Fixes look good. Pausing collateral no longer marks the collateral as invalid, allowing vault actions to be carried out when collateral is paused. OpenLoan now reverts if collateral is paused.
 
 
 
@@ -472,14 +475,14 @@ Depositors should only be able to burn NFTs that they minted. Change DepositReci
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix. Appears to be a duplicate of issue #43 's footnote.
-
-**kree-dotcom**
-
 Fixed https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/23ff5653b555b11c9f4dead7ff5a72d50eac5788
 
-We have taken a different approach to that suggested by the auditor, theirs looked valid though. 
+We have taken a different approach to that suggested by the auditor.
 We added the checks on lines 82 and 123 that validate any depositReceipt being withdrawn was originally minted by that Depositor contract. Other lines changed in this commit relate to #47 .
+
+**0x00052**
+
+Fixes look good. Splits withdrawFromGauge into to an internal and external function with the external function checking that the NFT was created by that depositor
 
 
 
@@ -488,7 +491,7 @@ We added the checks on lines 82 and 123 that validate any depositReceipt being w
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/47 
 
 ## Found by 
-clems4ever, bin2chen, ak1, neumo, CodingNameKiki, HollaDieWaldfee, rotcivegaf, Jeiwan, 0x52, HonorLt
+HonorLt, Jeiwan, rotcivegaf, CodingNameKiki, clems4ever, HollaDieWaldfee, 0x52, ak1, neumo, bin2chen
 
 ## Summary
 
@@ -552,13 +555,13 @@ Only allow owner of NFT to withdraw it:
 
 **kree-dotcom**
 
-Sponsor Confirmed, will fix
-
-**kree-dotcom**
-
 Fixed https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/23ff5653b555b11c9f4dead7ff5a72d50eac5788
 
 Here we have added a check on line 81 and 122 as suggested. There is also minor refactoring which is needed due to the fact if we are doing a partial withdrawal then after calling `depositReceipt.split()` the owner of the newly acquired depositReceipt is the Depositor not the original msg.sender. Therefore we moved the withdrawal logic to an internal function that both `withdrawFromGauge()` and `partialWithdrawFromGauge()` both access after ownership checks. 
+
+**0x00052**
+
+Fixes look good. Splits withdrawFromGauge into to an internal and external function with the external function checking for NFT ownership.
 
 
 
@@ -567,7 +570,7 @@ Here we have added a check on line 81 and 122 as suggested. There is also minor 
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/46 
 
 ## Found by 
-clems4ever, 0x52
+0x52, clems4ever
 
 ## Summary
 
@@ -661,16 +664,16 @@ Change the number of tokens to an immutable, so that it can be set individually 
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix
-
-**kree-dotcom**
-
 Fixed https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/76bb63d885759825d93e95925364806168d02e51
 
 Both DepositReceipts have had the swap quantity changed to an immutable. DepositReceipt_USDC contains further checks to ensure the swap quantity would receive between 100 and 105 USDC on deployment so we know it is the right scale. This check could also be done with DepositReceipt_ETH but because the value of ETH is dynamic it would be a little more complex so instead we just included a non-zero value check. 
 
-Sorry, corrected a mistake with still using the `HUNDRED` constant for scaling this trade
+Then corrected a mistake with still using the `HUNDRED` constant for scaling this trade in this commit
 https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/d8e7651f44a4cee07d23c00aa6ee612e25879771
+
+**0x00052**
+
+Fixes looks good. Now uses a variable swap amount instead of always using 100 full tokens
 
 
 
@@ -708,14 +711,6 @@ Use 3 hours as hearbeat.
 
 **kree-dotcom**
 
-Sponsor Confirmed. 24Hrs was originally for the sUSD chainlink feed, as seen here it can and should be much lower for other price feeds https://data.chain.link/optimism/mainnet/crypto-usd/eth-usd (mouse over trigger parameters)
-
-**kree-dotcom**
-
-clicked wrong button
-
-**kree-dotcom**
-
 3 hours as recommended by the auditor does not seem sufficient. Some Optimism price feeds such as ETH/USD and OP/USD have Heartbeats of 1200s or 20min. Currently we cannot find a method to fetch this via the oracle address and it looks like the Heartbeat sensitivity would have to be set per deployment of the depositReceipt.
 
 **kree-dotcom**
@@ -723,6 +718,10 @@ clicked wrong button
 Fixed, https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/398f40cce538461396966ac22273f846d56f6f27
 
 `HEARTBEAT_TIME` is now an immutable var that is set by the deployer for each instance of a depositReceipt.
+
+**0x00052**
+
+Fixes look good. `HEARTBEAT_TIME` changed to an immutable
 
 
 
@@ -806,10 +805,6 @@ Make sure to apply withdrawal fee consistent to how Lyra pool does.
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix
-
-**kree-dotcom**
-
 Currently this fix looks like it will be quite a lot of alterations. If there is time and it doesn't introduce too many changes for Sherlock to check we will try to fix it. 
 
 The reason is the call added must be made to the optionMarket contract of each collateral, this address is stored as an internal address in liquidityPool and other contracts, therefore to access it we must add another field to Lyra collateral in the collateral book, this would involve altering all collateralBook functions to expect another field as well as other vaults and systems to adhere to this larger model. 
@@ -817,6 +812,10 @@ The reason is the call added must be made to the optionMarket contract of each c
 Alternatively we can add another mapping to the Vault_Lyra to store the OptionsMarkets and an admin only function to add new ones but this feels like poor design.
 
 Leaving this issue unfixed is unlikely to cause large problems. LiquidityTokens should only have zero live boards if an optionMarket is closed (usually to be depreciated) with zero live boards the collateral should be earning no interest for the owner and therefore they would likely desire to close their loan and redeem their collateral and so not be in a situation to be liquidated.
+
+**0x00052**
+
+Sponsor has acknowledged and accepted the risk without fixing.
 
 
 
@@ -878,20 +877,13 @@ We shouldn't increase the `virtualPrice` during the paused period.
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix. Partial duplicate of issues #42 and issue #38. This was a design decision but we have decided to change it so that users can closeLoans, addCollateral or be liquidated when a collateral/vault is Paused.
+ This was a design decision but we have decided to change it so that users can closeLoans, addCollateral or be liquidated when a collateral/vault is Paused.
 
-**kree-dotcom**
+Fixed here https://github.com/kree-dotcom/isomorph/commit/be279b394931393feaa119bc2ebe7d6bfeb575ba Collateral pausing has been modified to match Vault pausing. Because a user can closeLoan, addCollateral or be liquidated while a collateral is paused there is no reason to freeze interest accruing on the collateral. Like a paused Vault, the only action not possible when a collateral is paused is `openLoan()`
 
-Allow users to call `increaseCollateralAmount()`, `closeLoan()` and `callLiquidation()` of each Vault while the vault is paused. 
-https://github.com/kree-dotcom/isomorph/commit/627212dcdcc3c22553de5587a90c9fae211a4888
+**0x00052**
 
-**kree-dotcom**
-
-Freeze collateral interest when collateral is paused. https://github.com/kree-dotcom/isomorph/commit/8ed4909462315bda79a08b773c530dfadfc1c4a3
-
-This is achieved by ensuring the virtualPrice is up-to-date when pausing and then altering the lastUpdateTime when unpausing so that the system thinks the virtualPrice has been updated for the paused time period. 
-
-If a collateral is paused and unpaused often then interest owed can be lost because of rounding here as we can lose <180s of interest due per pausing. However as only admins can pause collaterals this is deemed an insignificant risk to the system as it would just slightly reduce fees owed on one collateral. 
+Fixes look good. Reverting another fix, allowing interest to accrue while paused
 
 
 
@@ -900,7 +892,7 @@ If a collateral is paused and unpaused often then interest owed can be lost beca
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/231 
 
 ## Found by 
-GimelSec, neumo, 0x4non, hansfriese, rvierdiiev, wagmi, jonatascm
+wagmi, jonatascm, 0x4non, hansfriese, GimelSec, rvierdiiev, neumo
 
 
 
@@ -937,15 +929,15 @@ Manual Review
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix.
+Fixed https://github.com/kree-dotcom/isomorph/commit/4fc80e6178204691a365f656908c278d5faf4f88 , corrected missing semicolon here https://github.com/kree-dotcom/isomorph/commit/9bad2748dd3f3e7905dc8013383aef0cf98b1bea
 
-**kree-dotcom**
-
-Fixed https://github.com/kree-dotcom/isomorph/commit/4fc80e6178204691a365f656908c278d5faf4f88 , woops then forgot a semicolon, this was added here https://github.com/kree-dotcom/isomorph/commit/9bad2748dd3f3e7905dc8013383aef0cf98b1bea
-
-isoToken was not altered in this commit but is correct. I made a copying error when setting up the Audit repo originally.
+isoToken was not altered in this commit but is correct. A copying error was made when setting up the audit repo originally.
 
 https://github.com/kree-dotcom/isomorph/blob/4fc80e6178204691a365f656908c278d5faf4f88/contracts/isoUSDToken.sol#L10
+
+**0x00052**
+
+Fixes look good. Delay is now 2 days instead of 200 seconds
 
 
 
@@ -954,7 +946,7 @@ https://github.com/kree-dotcom/isomorph/blob/4fc80e6178204691a365f656908c278d5fa
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/229 
 
 ## Found by 
-ak1, bin2chen, rvierdiiev
+rvierdiiev, ak1, bin2chen
 
 ## Summary
 
@@ -1003,11 +995,11 @@ Allow user add collateral freely.
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix. Issue #41 is a duplicate of this
-
-**kree-dotcom**
-
 Fixed https://github.com/kree-dotcom/isomorph/commit/6b403bad09388fca0153b843a2e552b5e3d235cd
+
+**0x00052**
+
+Fixes look good. Liquidation margin check has been removed when adding collateral
 
 
 
@@ -1016,7 +1008,7 @@ Fixed https://github.com/kree-dotcom/isomorph/commit/6b403bad09388fca0153b843a2e
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/224 
 
 ## Found by 
-Deivitto, yixxas, Jeiwan
+yixxas, Jeiwan, Deivitto
 
 ## Summary
 Dangerous assumption on the peg of USDC can lead to manipulations
@@ -1061,9 +1053,15 @@ Consider using the Chainlink USDC/USD feed to get the price of USDC and price li
 
 **kree-dotcom**
 
-Sponsor confirmed however this is part of the protocol design. That said now that we have the duel oracle system for DepositReceipt_ETH it should not be too difficult to replicate this with minor changes so that the USDC value in DepositReceipt_USDC uses a chainlink oracle also.
+Fixed, https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/2468e2757d2f0662cd74b028e4361a4afe5796e6 . We have expanded the `priceLiquidity()` design from the `DepositReceipt_ETH` to `DepositReceipt_USDC` so now USDC uses a chainlink price feed to determine it's true worth. As part of this update we have added an extra heartbeat as different oracles can have different heartbeat time lengths. For example USDC/USD has a 12 hour heartbeat as it is quite stable in value but SNX/USD has a 20 minute heartbeat.
 
-As for sUSD, we will explore how changes might impact the system. The system is already designed to absorb small fluctuations in the value of sUSD by having a gap between the opening margin and the liquidation margin. However we can see that it can be unfair to a user if they get liquidated because they fairly price their Synth collateral using sUSD = $1.01 rather than the hardcoded exchange rate. 
+**kree-dotcom**
+
+Added sUSD pricefeed to improve accuracy of sUSD value in `Vault_Synth.sol` https://github.com/kree-dotcom/isomorph/commit/e510e6f5f6720635ebdb58bcf6083f1c2422305e
+
+**0x00052**
+
+Fixes look good. DepositReceipt_USDC now accounts for the price variation in USDC and Vault_Synths now accounts for the price variation in sUSD
 
 
 
@@ -1072,7 +1070,7 @@ As for sUSD, we will explore how changes might impact the system. The system is 
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/200 
 
 ## Found by 
-\_\_141345\_\_, 8olidity, yixxas, caventa, HonorLt
+HonorLt, yixxas, \_\_141345\_\_, caventa, 8olidity
 
 ## Summary
 
@@ -1142,11 +1140,11 @@ Validate data feed for round completeness:
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix. 
-
-**kree-dotcom**
-
 Fixed https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/5c656e791e70ecdfe26f9807438498384d7f6108
+
+**0x00052**
+
+Fixes look good. DepositReciept_Base now validates round completeness
 
 
 
@@ -1155,7 +1153,7 @@ Fixed https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/5c656e791e70ecdf
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/191 
 
 ## Found by 
-GimelSec, CodingNameKiki, ctf\_sec, Jeiwan, yixxas, 0xjayne, rvierdiiev
+Jeiwan, ctf\_sec, yixxas, CodingNameKiki, GimelSec, rvierdiiev, 0xjayne
 
 ## Summary
 
@@ -1186,9 +1184,15 @@ uint256 public constant CHANGE_COLLATERAL_DELAY = 2 days; //2 days
 
 ## Discussion
 
-**kree-dotcom**
+**hrishibhat**
 
-Sponsor confirmed, will fix. Duplicate of issue #231 
+Fix PR:
+[kree-dotcom/isomorph@`9bad274`](https://github.com/kree-dotcom/isomorph/commit/9bad2748dd3f3e7905dc8013383aef0cf98b1bea)
+
+
+**0x00052**
+
+Wrong PR linked but delay has been changed from 200 to 2 days
 
 
 
@@ -1325,9 +1329,13 @@ Manual Review
 
 **kree-dotcom**
 
-Sponsor confirmed, fixed https://github.com/kree-dotcom/isomorph/commit/6c0bd26136ff4b33f23437551e22b1066156995b
+Fixed in the two following commits https://github.com/kree-dotcom/isomorph/commit/6c0bd26136ff4b33f23437551e22b1066156995b
 
-Sorry there were some errors I've corrected in the above commit https://github.com/kree-dotcom/isomorph/commit/4322e27fa3e61f1515ba8e88d275676c7b9ed915
+Some errors from the above commit were fixed here https://github.com/kree-dotcom/isomorph/commit/4322e27fa3e61f1515ba8e88d275676c7b9ed915
+
+**0x00052**
+
+Fixes look good. Vault_Velo#_calculateProposedReturnedCapital now sums all tokens then value all at once to avoid truncation
 
 
 
@@ -1336,7 +1344,7 @@ Sorry there were some errors I've corrected in the above commit https://github.c
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/158 
 
 ## Found by 
-bin2chen, HollaDieWaldfee, Jeiwan, hansfriese, libratus, rvierdiiev, wagmi, 0x52, KingNFT, Atarpara
+Jeiwan, libratus, wagmi, hansfriese, KingNFT, Atarpara, HollaDieWaldfee, 0x52, rvierdiiev, bin2chen
 
 ## Summary
 
@@ -1404,11 +1412,13 @@ Before updating the interest time it should first truncate it to the closest 3-m
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix.
-
-**kree-dotcom**
-
 Fixed https://github.com/kree-dotcom/isomorph/commit/ae410496c024af5b061cf85997f225ae46fd56e6
+
+lastUpdateTime is now only updated to the timestamp which we covered with our 3 minute interest update steps.
+
+**0x00052**
+
+Fixes look good. lastUpdateTime is now updated to the truncated time
 
 
 
@@ -1500,17 +1510,19 @@ Consider getting latest priceFeed.aggregator().minAnswer()/maxAnswer() in priceL
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix. 
-
 Chainlink documents state: "you can call functions on the aggregator directly, but it is a best practice to use the [AggregatorV3Interface](https://docs.chain.link/data-feeds/price-feeds/api-reference#aggregatorv3interface) to run functions on the proxy instead so that changes to the aggregator do not affect your application. Read the aggregator contract only if you need functions that are not available in the proxy."
 
-So the auditor is right that we should not assume the AccessControlledOffchainAggregator is static. We will move these calls to occur on every call rather than in setup.
+So the auditor is right that we should not assume the AccessControlledOffchainAggregator is static. We have moved these calls to occur on every call rather than in setup.
 
 **kree-dotcom**
 
 Fixed https://github.com/kree-dotcom/Velo-Deposit-Tokens/commit/58b8f3e14b416630971b7b17b500bbe22d2016aa
 
-Note there are two fixes in this commit relating to the priceLiquidity function. the other issue is #72 , the code for these changes doesn't overlap so should be clear, please ask me if it is not.
+Note there are two fixes in this commit relating to the priceLiquidity function. the other issue is #72 , the code for these changes doesn't overlap so should be clear.
+
+**0x00052**
+
+Fixes look good. minPrice and maxPrice are now called dynamically from the aggregator
 
 
 
@@ -1607,7 +1619,12 @@ Precisely when the exchange fee is updated, the fee is reflected in the collater
 
 **kree-dotcom**
 
-SPonsor confirmed, will fix
+Fixed, https://github.com/kree-dotcom/isomorph/commit/f8ddef0671d8e33bd0a019aaa26834aab6688306 .
+The exchange rate of the given Synth collateral to sUSD is calculated on each valuation call and removed from the collateral value.
+
+**0x00052**
+
+Fixes look good. Exchange fee is now queried and removed from the valuation of the collateral
 
 
 
@@ -1616,7 +1633,7 @@ SPonsor confirmed, will fix
 Source: https://github.com/sherlock-audit/2022-11-isomorph-judging/issues/70 
 
 ## Found by 
-clems4ever, 0x52
+0x52, clems4ever
 
 ## Summary
 
@@ -1686,15 +1703,6 @@ If a user is closing their entire loan then there is no need to check the value 
 
 **kree-dotcom**
 
-Sponsor confirmed, will fix. 
-
-Also by fixing issue #145 and refreshing the minPrice and maxPrice on each call we will reduce the likelihood of a price getting stuck outside of the aggregator price range.
-
-
-
-
-**kree-dotcom**
-
 Proposed solution no longer works as the solution to issue #161 changed line 553 in `Vault_Velo.sol` to `if((outstandingisoUSD > 0) && (colInUSD > 0)){ ` meaning that the calculation of colInUSD must occur before entering the if clause. 
 
 However with issue #145 fixed this problem is less terminal as now we update the minPrice and maxPrice with each call. 
@@ -1704,6 +1712,10 @@ We then have two situations in which the minPrice or maxPrice protection is trig
 2.  Flash crash, a collateral is hacked or manipulated so that it drops below the minPrice faster than Chainlink can react and so the collateral is now stuck for our system. While this situation is not solved the assets backing the loan are now likely worthless anyway. This does not address the situation when the price rises suddenly. In that case the collateral will become inaccessible for a short while, it is assumed that if the price persists Chainlink would then alter the maxPrice and so collateral would become accessible again.
 
 Therefore this has become a "won't fix" issue
+
+**0x00052**
+
+The risk of this issue has been greatly reduced by the fixes made for #145. The risk of a flash crash has been acknowledged by sponsor and they have accepted this risk, without a fix.
 
 
 
